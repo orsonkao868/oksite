@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OK小站 — Orson Kao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Serif+TC:wght@200;300;400&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#060606;--deep:#0c0c0c;--card:#111111;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:#6b5520;
+  --white:#ede9e0;--white-dim:#8a8278;
+  --border:rgba(201,168,76,0.15);--border-bright:rgba(201,168,76,0.45);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--white);font-family:'Noto Serif TC',serif;cursor:none;position:relative}
+
+/* 游標 */
+.cursor{position:fixed;width:6px;height:6px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width 0.3s,height 0.3s,opacity 0.3s}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(201,168,76,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
+.cursor.expand{width:20px;height:20px;opacity:0.25}
+.cursor-ring.expand{width:56px;height:56px}
+
+/* 噪點 */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.5}
+
+/* 光暈 */
+.glow{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+.glow-a{width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,0.055),transparent 70%);top:-200px;right:-150px;animation:ga 9s ease-in-out infinite}
+.glow-b{width:350px;height:350px;background:radial-gradient(circle,rgba(201,168,76,0.035),transparent 70%);bottom:-80px;left:-80px;animation:gb 12s ease-in-out infinite}
+@keyframes ga{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,50px)}}
+@keyframes gb{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-40px)}}
+
+/* 進度條 */
+.progress{position:fixed;top:0;left:0;height:1px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));z-index:300;transition:width 0.15s;width:0}
+
+/* 漢堡選單 */
+.menu-btn{
+  position:fixed;top:36px;right:48px;z-index:201;
+  width:44px;height:44px;display:flex;flex-direction:column;
+  justify-content:center;align-items:flex-end;gap:7px;
+  cursor:none;padding:4px;
+  opacity:0;animation:fadeIn 1.2s 0.5s forwards;
+}
+.menu-line{
+  width:100%;height:1px;background:var(--gold);
+  transition:all 0.4s;transform-origin:right center;
+}
+.menu-line:nth-child(2){width:65%}
+.menu-line:nth-child(3){width:40%}
+.menu-btn.open .menu-line:nth-child(1){transform:rotate(-45deg) translate(0px,5.5px);width:100%}
+.menu-btn.open .menu-line:nth-child(2){opacity:0;transform:scaleX(0)}
+.menu-btn.open .menu-line:nth-child(3){transform:rotate(45deg) translate(0px,-5.5px);width:100%}
+
+/* 側邊抽屜 */
+.drawer{
+  position:fixed;top:0;right:0;width:380px;height:100vh;
+  background:rgba(8,8,8,0.97);backdrop-filter:blur(20px);
+  border-left:1px solid var(--border);
+  z-index:200;display:flex;flex-direction:column;
+  padding:100px 48px 48px;
+  transform:translateX(100%);transition:transform 0.6s cubic-bezier(0.76,0,0.24,1);
+}
+.drawer.open{transform:translateX(0)}
+
+.drawer-nav{
+  display:flex;flex-direction:column;gap:4px;margin-bottom:60px;
+}
+.drawer-link{
+  font-family:'Playfair Display',serif;
+  font-size:36px;font-weight:400;font-style:italic;
+  color:var(--white-dim);text-decoration:none;
+  padding:10px 0;border-bottom:1px solid transparent;
+  transition:all 0.3s;letter-spacing:1px;
+  opacity:0;transform:translateX(20px);
+  position:relative;overflow:hidden;
+}
+.drawer.open .drawer-link{opacity:1;transform:translateX(0)}
+.drawer.open .drawer-link:nth-child(1){transition-delay:0.1s}
+.drawer.open .drawer-link:nth-child(2){transition-delay:0.15s}
+.drawer.open .drawer-link:nth-child(3){transition-delay:0.2s}
+.drawer.open .drawer-link:nth-child(4){transition-delay:0.25s}
+.drawer-link::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:1px;background:var(--gold);
+  transform:scaleX(0);transform-origin:left;transition:transform 0.4s;
+}
+.drawer-link:hover{color:var(--gold)}
+.drawer-link:hover::after{transform:scaleX(1)}
+
+/* 名片（在drawer裡） */
+.drawer-card{
+  margin-top:auto;
+  border:1px solid var(--border-bright);padding:28px;
+  position:relative;overflow:hidden;
+  opacity:0;transform:translateY(20px);transition:all 0.4s 0.4s;
+  background:linear-gradient(135deg,rgba(20,16,8,0.8),rgba(12,10,4,0.9));
+}
+.drawer.open .drawer-card{opacity:1;transform:translateY(0)}
+.drawer-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.dc-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:4px}
+.dc-role{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
+.dc-line{width:30px;height:1px;background:var(--gold-dim);margin-bottom:20px}
+.dc-contact{display:flex;flex-direction:column;gap:8px}
+.dc-contact a{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--white-dim);text-decoration:none;transition:color 0.3s;display:flex;align-items:center;gap:8px}
+.dc-contact a::before{content:'';width:14px;height:1px;background:currentColor;flex-shrink:0}
+.dc-contact a:hover{color:var(--gold)}
+
+/* LOGO */
+.logo{
+  position:fixed;top:34px;left:48px;z-index:201;
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:700;
+  color:var(--gold);letter-spacing:2px;text-decoration:none;cursor:none;
+  opacity:0;animation:fadeIn 1.2s 0.3s forwards;
+}
+
+/* 主要內容 — 全螢幕 */
+main{
+  position:fixed;inset:0;display:flex;align-items:center;
+  padding:0 10vw;z-index:1;
+  overflow:hidden;
+}
+
+.hero-left{flex:1;padding-right:8vw}
+
+.hero-eyebrow{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:5px;color:var(--gold);text-transform:uppercase;
+  margin-bottom:28px;display:flex;align-items:center;gap:14px;
+  opacity:0;animation:slideUp 0.9s 0.7s forwards;
+}
+.hero-eyebrow::before{content:'';width:36px;height:1px;background:var(--gold)}
+
+.hero-name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(60px,7.5vw,120px);
+  font-weight:700;line-height:0.92;
+  color:var(--white);margin-bottom:6px;
+  opacity:0;animation:slideUp 0.9s 0.9s forwards;
+}
+.hero-name em{
+  font-style:italic;color:transparent;
+  -webkit-text-stroke:1px var(--gold);
+  display:block;
+}
+
+.hero-brand{
+  font-family:'DM Mono',monospace;
+  font-size:11px;letter-spacing:7px;color:var(--white-dim);
+  text-transform:uppercase;margin-bottom:48px;margin-left:4px;
+  opacity:0;animation:slideUp 0.9s 1.1s forwards;
+}
+
+.hero-desc{
+  font-size:15px;line-height:2;color:var(--white-dim);
+  max-width:400px;margin-bottom:52px;font-weight:300;
+  opacity:0;animation:slideUp 0.9s 1.3s forwards;
+}
+.hero-desc strong{color:var(--white);font-weight:400}
+
+.hero-cta{
+  display:flex;gap:16px;
+  opacity:0;animation:slideUp 0.9s 1.5s forwards;
+}
+.btn-gold{
+  padding:14px 36px;border:1px solid var(--gold);
+  background:transparent;color:var(--gold);
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;
+  text-decoration:none;cursor:none;
+  transition:all 0.35s;position:relative;overflow:hidden;
+}
+.btn-gold::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform 0.35s}
+.btn-gold:hover{color:var(--black)}
+.btn-gold:hover::before{transform:translateX(0)}
+.btn-gold span{position:relative;z-index:1}
+.btn-ghost{
+  padding:14px 36px;border:1px solid rgba(237,233,224,0.15);
+  background:transparent;color:var(--white-dim);
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;
+  text-decoration:none;cursor:none;transition:all 0.35s;
+}
+.btn-ghost:hover{border-color:rgba(237,233,224,0.4);color:var(--white)}
+
+/* 右側裝飾 */
+.hero-right{
+  width:280px;flex-shrink:0;
+  opacity:0;animation:slideLeft 1s 1.7s forwards;
+}
+@keyframes slideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+.deco-box{
+  border:1px solid var(--border);padding:36px 28px;
+  position:relative;background:linear-gradient(135deg,rgba(17,13,5,0.6),rgba(10,8,3,0.8));
+}
+.deco-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.deco-num{
+  font-family:'Playfair Display',serif;
+  font-size:72px;font-weight:700;font-style:italic;
+  color:rgba(201,168,76,0.08);line-height:1;
+  position:absolute;bottom:16px;right:20px;
+  pointer-events:none;
+}
+.deco-item{margin-bottom:28px}
+.deco-item:last-child{margin-bottom:0}
+.deco-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.deco-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--white);line-height:1.2}
+.deco-div{width:100%;height:1px;background:var(--border);margin:20px 0}
+
+/* 底部簽名 */
+.footer-sig{
+  position:fixed;bottom:32px;left:48px;z-index:1;
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--white-dim);text-transform:uppercase;
+  opacity:0;animation:fadeIn 1s 2s forwards;
+}
+.footer-sig span{color:var(--gold)}
+
+/* 頁數指示 */
+.page-indicator{
+  position:fixed;bottom:32px;right:48px;z-index:1;
+  font-family:'Playfair Display',serif;font-size:11px;
+  color:var(--white-dim);letter-spacing:2px;font-style:italic;
+  opacity:0;animation:fadeIn 1s 2s forwards;
+}
+
+/* 滾動區（關於、技能、作品、聯絡） */
+.scroll-sections{
+  position:fixed;inset:0;z-index:50;
+  overflow-y:auto;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.5s;
+  scroll-behavior:smooth;
+}
+.scroll-sections.visible{opacity:1;pointer-events:all}
+.scroll-sections::-webkit-scrollbar{width:2px}
+.scroll-sections::-webkit-scrollbar-track{background:transparent}
+.scroll-sections::-webkit-scrollbar-thumb{background:var(--gold-dim)}
+
+.sec{
+  min-height:100vh;padding:100px 10vw;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;border-top:1px solid var(--border);
+}
+.sec-close{
+  position:absolute;top:40px;right:48px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
+  color:var(--white-dim);cursor:none;text-transform:uppercase;
+  transition:color 0.3s;background:none;border:none;
+}
+.sec-close:hover{color:var(--gold)}
+.sec-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.sec-tag::before{content:'';width:24px;height:1px;background:var(--gold)}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,80px);font-weight:700;line-height:1;color:var(--white);margin-bottom:60px}
+.sec-title em{font-style:italic;color:var(--gold)}
+
+/* 關於 */
+#sec-about .grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.about-p{font-size:15px;line-height:2.2;color:var(--white-dim);font-weight:300;margin-bottom:20px}
+.about-p strong{color:var(--white);font-weight:400}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px}
+.stat{background:var(--card);border:1px solid var(--border);padding:32px 24px;transition:border-color 0.3s}
+.stat:hover{border-color:var(--border-bright)}
+.stat-n{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;font-style:italic;color:var(--gold);line-height:1;margin-bottom:6px}
+.stat-l{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--white-dim);text-transform:uppercase}
+
+/* 技能 */
+#sec-skills .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px}
+.sk{background:var(--card);border:1px solid var(--border);padding:36px 28px;transition:all 0.4s;position:relative;overflow:hidden}
+.sk::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform 0.4s}
+.sk:hover{border-color:var(--border-bright);transform:translateY(-4px)}
+.sk:hover::after{transform:scaleX(1)}
+.sk-icon{font-size:32px;margin-bottom:20px}
+.sk-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--white);margin-bottom:6px}
+.sk-en{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.sk-desc{font-size:13px;line-height:1.8;color:var(--white-dim);font-weight:300;margin-bottom:20px}
+.sk-tags{display:flex;flex-wrap:wrap;gap:5px}
+.sk-tag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--border);color:var(--white-dim);text-transform:uppercase}
+
+/* 作品 */
+#sec-works .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px}
+.wk{background:var(--card);border:1px solid var(--border);padding:36px 28px;transition:all 0.4s;text-decoration:none;display:block;position:relative;overflow:hidden}
+.wk::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform 0.4s}
+.wk:hover{border-color:var(--border-bright);transform:translateY(-4px)}
+.wk:hover::before{transform:scaleX(1)}
+.wk-n{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;font-style:italic;color:rgba(201,168,76,0.1);line-height:1;margin-bottom:20px}
+.wk-type{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.wk-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--white);margin-bottom:6px;line-height:1.2}
+.wk-en{font-size:12px;color:var(--white-dim);margin-bottom:16px;font-weight:300}
+.wk-desc{font-size:13px;line-height:1.8;color:var(--white-dim);margin-bottom:20px;font-weight:300}
+.wk-link{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.wk-link::after{content:'→';transition:transform 0.3s}
+.wk:hover .wk-link::after{transform:translateX(5px)}
+
+/* 聯絡 */
+#sec-contact{text-align:center;justify-content:center;align-items:center}
+.ct-sub{font-size:15px;color:var(--white-dim);max-width:380px;line-height:2;font-weight:300;margin:0 auto 48px}
+.ct-email{font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,42px);font-weight:400;font-style:italic;color:var(--white);text-decoration:none;border-bottom:1px solid var(--border-bright);padding-bottom:6px;transition:all 0.3s;display:inline-block;margin-bottom:48px}
+.ct-email:hover{color:var(--gold);border-color:var(--gold)}
+.ct-links{display:flex;justify-content:center;gap:28px}
+.ct-links a{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--white-dim);text-decoration:none;text-transform:uppercase;transition:color 0.3s;display:flex;align-items:center;gap:8px}
+.ct-links a::before{content:'';width:18px;height:1px;background:currentColor}
+.ct-links a:hover{color:var(--gold)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  .logo{left:24px;top:24px}
+  .menu-btn{right:24px;top:24px}
+  .drawer{width:100%}
+  main{padding:0 6vw;flex-direction:column;justify-content:center;align-items:flex-start}
+  .hero-right{display:none}
+  .hero-name{font-size:clamp(48px,12vw,80px)}
+  .footer-sig,.page-indicator{display:none}
+  .sec{padding:100px 6vw 60px}
+  #sec-about .grid,#sec-skills .grid,#sec-works .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<div class="progress" id="progress"></div>
+<div class="glow glow-a"></div>
+<div class="glow glow-b"></div>
+
+<!-- LOGO -->
+<a class="logo" href="#">OK</a>
+
+<!-- 漢堡選單 -->
+<div class="menu-btn" id="menu-btn" onclick="toggleMenu()">
+  <div class="menu-line"></div>
+  <div class="menu-line"></div>
+  <div class="menu-line"></div>
+</div>
+
+<!-- 側邊抽屜 -->
+<div class="drawer" id="drawer">
+  <nav class="drawer-nav">
+    <a class="drawer-link" href="#" onclick="openSection('about')">關於我</a>
+    <a class="drawer-link" href="#" onclick="openSection('skills')">專業技能</a>
+    <a class="drawer-link" href="#" onclick="openSection('works')">精選作品</a>
+    <a class="drawer-link" href="#" onclick="openSection('contact')">聯絡我</a>
+  </nav>
+  <div class="drawer-card">
+    <div class="dc-name">Orson Kao</div>
+    <div class="dc-role">Web Dev · Designer</div>
+    <div class="dc-line"></div>
+    <div class="dc-contact">
+      <a href="mailto:orsonkao868@gmail.com">orsonkao868@gmail.com</a>
+      <a href="https://github.com/orsonkao868" target="_blank">github.com/orsonkao868</a>
+      <a href="#">LINE — 即將更新</a>
+    </div>
+  </div>
+</div>
+
+<!-- 主要畫面（永遠在第一屏） -->
+<main>
+  <div class="hero-left">
+    <div class="hero-eyebrow">Web Developer & Designer</div>
+    <h1 class="hero-name">Orson<em>Kao.</em></h1>
+    <div class="hero-brand">OK · Creative Studio</div>
+    <p class="hero-desc">
+      以<strong>想像力</strong>為筆，以<strong>程式</strong>為墨。<br>
+      讓每個數位體驗，都成為客戶心中<strong>最滿意的樣子</strong>。
+    </p>
+    <div class="hero-cta">
+      <a href="#" class="btn-gold" onclick="openSection('works')"><span>精選作品</span></a>
+      <a href="#" class="btn-ghost" onclick="openSection('contact')">聯絡我</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="deco-box">
+      <div class="deco-num">OK</div>
+      <div class="deco-item">
+        <div class="deco-label">專注領域</div>
+        <div class="deco-val">網站架構<br>程式設計</div>
+      </div>
+      <div class="deco-div"></div>
+      <div class="deco-item">
+        <div class="deco-label">作品數量</div>
+        <div class="deco-val">3+ Projects</div>
+      </div>
+      <div class="deco-div"></div>
+      <div class="deco-item">
+        <div class="deco-label">聯絡方式</div>
+        <div class="deco-val" style="font-size:13px;font-family:'DM Mono',monospace;color:var(--white-dim);letter-spacing:0.5px">orsonkao868@gmail.com</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 底部資訊 -->
+<div class="footer-sig">© 2026 <span>Orson Kao</span> · All Rights Reserved</div>
+<div class="page-indicator">Portfolio <em>·</em> 2026</div>
+
+<!-- 滾動區塊 -->
+<div class="scroll-sections" id="scroll-sections">
+
+  <section class="sec" id="sec-about">
+    <button class="sec-close" onclick="closeSection()">✕ 關閉</button>
+    <div class="sec-tag">關於我</div>
+    <h2 class="sec-title">想像力是<em>最強大</em>的工具</h2>
+    <div class="grid">
+      <div>
+        <p class="about-p">我是 <strong>Orson Kao</strong>，一位具備豐富想像力的網站開發者與設計師。我相信每一個網站都是一個故事，每一行程式碼都承載著客戶的夢想。</p>
+        <p class="about-p">從視覺設計到功能實現，我擅長將抽象的創意轉化為<strong>具體的數位體驗</strong>。無論是精緻的互動設計，還是複雜的系統架構，我都能帶給客戶<strong>超乎預期的成果</strong>。</p>
+        <p class="about-p">我的目標很簡單：讓每一位客戶，在看到成品的那一刻，都能感受到<strong>那份恰到好處的滿意</strong>。</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-n">3+</div><div class="stat-l">完整作品</div></div>
+        <div class="stat"><div class="stat-n">∞</div><div class="stat-l">創意無限</div></div>
+        <div class="stat"><div class="stat-n">100%</div><div class="stat-l">客戶滿意</div></div>
+        <div class="stat"><div class="stat-n">24/7</div><div class="stat-l">持續學習</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="sec-skills">
+    <button class="sec-close" onclick="closeSection()">✕ 關閉</button>
+    <div class="sec-tag">專業技能</div>
+    <h2 class="sec-title">以技術<em>實現</em>每個想像</h2>
+    <div class="grid">
+      <div class="sk">
+        <div class="sk-icon">🏗️</div>
+        <div class="sk-name">網站架構</div>
+        <div class="sk-en">Web Architecture</div>
+        <div class="sk-desc">從零開始規劃完整的網站架構，確保每一個環節都穩固且具備擴展性。</div>
+        <div class="sk-tags"><span class="sk-tag">HTML</span><span class="sk-tag">CSS</span><span class="sk-tag">JavaScript</span><span class="sk-tag">PWA</span></div>
+      </div>
+      <div class="sk">
+        <div class="sk-icon">⚙️</div>
+        <div class="sk-name">程式設計</div>
+        <div class="sk-en">Programming</div>
+        <div class="sk-desc">將複雜的邏輯以優雅的程式碼實現，打造高效能且易於維護的系統。</div>
+        <div class="sk-tags"><span class="sk-tag">Python</span><span class="sk-tag">Node.js</span><span class="sk-tag">Express</span><span class="sk-tag">API</span></div>
+      </div>
+      <div class="sk">
+        <div class="sk-icon">✨</div>
+        <div class="sk-name">視覺設計</div>
+        <div class="sk-en">Visual Design</div>
+        <div class="sk-desc">融合美感與功能性，創造令人印象深刻的視覺體驗與互動設計。</div>
+        <div class="sk-tags"><span class="sk-tag">UI/UX</span><span class="sk-tag">Animation</span><span class="sk-tag">Canvas</span><span class="sk-tag">SVG</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="sec-works">
+    <button class="sec-close" onclick="closeSection()">✕ 關閉</button>
+    <div class="sec-tag">精選作品</div>
+    <h2 class="sec-title">每個作品都是一次<em>超越</em></h2>
+    <div class="grid">
+      <a class="wk" href="https://orsonkao868.github.io/danatus/" target="_blank">
+        <div class="wk-n">01</div>
+        <div class="wk-type">Game · Interactive</div>
+        <div class="wk-name">達納特斯遊戲世界</div>
+        <div class="wk-en">Danatus Game Universe</div>
+        <div class="wk-desc">包含多款網頁遊戲的完整遊戲世界，展現豐富的遊戲設計與互動開發能力。</div>
+        <div class="wk-link">查看作品</div>
+      </a>
+      <a class="wk" href="https://orsonkao868.github.io/justmoneybook/" target="_blank">
+        <div class="wk-n">02</div>
+        <div class="wk-type">App · PWA</div>
+        <div class="wk-name">就是記帳</div>
+        <div class="wk-en">JustMoneyBook</div>
+        <div class="wk-desc">懶人專屬的超直觀記帳 App，支援雲端同步、多主題色調，可安裝到手機桌面。</div>
+        <div class="wk-link">查看作品</div>
+      </a>
+      <div class="wk">
+        <div class="wk-n">03</div>
+        <div class="wk-type">App · Travel</div>
+        <div class="wk-name">揪揪去</div>
+        <div class="wk-en">JojoTrip</div>
+        <div class="wk-desc">多人旅遊行程規劃 App，結合 AI 排程、地圖探索、景點投票，開發中。</div>
+        <div class="wk-link" style="color:var(--white-dim)">Coming Soon</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="sec-contact">
+    <button class="sec-close" onclick="closeSection()">✕ 關閉</button>
+    <div class="sec-tag">聯絡我</div>
+    <h2 class="sec-title">讓我們一起<br>創造<em>不凡</em></h2>
+    <p class="ct-sub">有任何想法或合作機會？<br>我很樂意聽你說，並一起實現它。</p>
+    <a href="mailto:orsonkao868@gmail.com" class="ct-email">orsonkao868@gmail.com</a>
+    <div class="ct-links">
+      <a href="https://github.com/orsonkao868" target="_blank">GitHub</a>
+      <a href="#">LINE — 即將更新</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* 游標 */
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+(function animateRing(){
+  rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animateRing);
+})();
+document.querySelectorAll('a,button,.sk,.wk,.stat,.deco-box').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.classList.add('expand');ring.classList.add('expand')});
+  el.addEventListener('mouseleave',()=>{cursor.classList.remove('expand');ring.classList.remove('expand')});
+});
+
+/* 選單 */
+let menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('menu-btn').classList.toggle('open',menuOpen);
+  document.getElementById('drawer').classList.toggle('open',menuOpen);
+}
+
+/* 關閉選單點選背景 */
+document.addEventListener('click',e=>{
+  const drawer=document.getElementById('drawer');
+  const btn=document.getElementById('menu-btn');
+  if(menuOpen&&!drawer.contains(e.target)&&!btn.contains(e.target)){
+    toggleMenu();
+  }
+});
+
+/* 開啟區塊 */
+function openSection(id){
+  const ss=document.getElementById('scroll-sections');
+  ss.classList.add('visible');
+  const target=document.getElementById('sec-'+id);
+  if(target) setTimeout(()=>target.scrollIntoView({behavior:'smooth'}),50);
+  if(menuOpen) toggleMenu();
+  return false;
+}
+
+function closeSection(){
+  document.getElementById('scroll-sections').classList.remove('visible');
+}
+
+/* 滾動進度 */
+const scrollEl=document.getElementById('scroll-sections');
+scrollEl.addEventListener('scroll',()=>{
+  const max=scrollEl.scrollHeight-scrollEl.clientHeight;
+  document.getElementById('progress').style.width=(scrollEl.scrollTop/max*100)+'%';
+});
+
+/* ESC 關閉 */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeSection();
+    if(menuOpen) toggleMenu();
+  }
+});
+</script>
+</body>
+</html>
