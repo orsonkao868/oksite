@@ -1,0 +1,215 @@
+/*
+==============================================
+  mobile.css — 手機響應式設計
+  管理：手機、平板的版面調整
+  修改這個檔案來調整手機上的顯示效果
+
+  斷點說明：
+  max-width: 900px  → 平板橫式以下
+  max-width: 640px  → 手機（一般）
+  max-width: 480px  → 手機（小螢幕）
+==============================================
+*/
+
+/* ══════════════════════════════════════════
+   平板以下（≤ 900px）
+   隱藏桌機專用的裝飾元素
+   ══════════════════════════════════════════ */
+@media (max-width: 900px) {
+
+  /* 右側裝飾盒隱藏 */
+  .hero-right { display: none }
+
+  /* 右側章節目錄隱藏 */
+  .inner-toc { display: none }
+
+  /* 底部版權隱藏（空間不夠）*/
+  .footer-sig { display: none }
+
+}
+
+/* ══════════════════════════════════════════
+   手機（≤ 640px）
+   ══════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* LOGO */
+  .logo {
+    left: 20px;
+    top: 22px;
+    font-size: 18px;
+  }
+
+  /* 漢堡按鈕 */
+  .menu-btn {
+    right: 20px;
+    top: 18px;
+  }
+
+  /* ── 首頁 ── */
+  main {
+    padding: 0 24px;
+    align-items: center;
+  }
+
+  .hero-left {
+    padding-right: 0;
+    width: 100%;
+  }
+
+  /* 眉標文字縮小 */
+  .hero-eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+  }
+  .hero-eyebrow::before { width: 20px }
+
+  /* 大名字 */
+  .hero-name {
+    font-size: clamp(48px, 14vw, 72px);
+    margin-bottom: 4px;
+  }
+
+  /* 品牌副標 */
+  .hero-brand {
+    font-size: 9px;
+    letter-spacing: 5px;
+    margin-bottom: 20px;
+  }
+
+  /* 介紹文字 */
+  .hero-desc {
+    font-size: 14px;
+    line-height: 1.9;
+    margin-bottom: 28px;
+  }
+
+  /* CTA 按鈕 */
+  .hero-cta {
+    gap: 10px;
+  }
+  .btn-gold,
+  .btn-ghost {
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 12px 20px;
+  }
+
+  /* ── 抽屜 ── */
+  .drawer {
+    padding: 80px 24px 40px;
+  }
+
+  .drawer-link {
+    font-size: clamp(28px, 8vw, 44px);
+    padding: 12px 0;
+  }
+
+  .drawer-card {
+    padding: 20px;
+  }
+
+  .dc-contact {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ── 內頁 ── */
+
+  /* 關閉按鈕 */
+  .inner-close {
+    top: 16px;
+    left: 16px;
+    font-size: 9px;
+    padding: 8px 12px;
+  }
+
+  /* 內容區 */
+  .inner-content {
+    padding: 72px 20px 48px;
+  }
+
+  /* 章節標題 */
+  .sec-title {
+    font-size: clamp(28px, 8vw, 44px);
+    margin-bottom: 28px;
+  }
+
+  /* 關於我 統計格 */
+  .stats {
+    max-width: 100%;
+  }
+  .stat-n {
+    font-size: clamp(32px, 8vw, 44px);
+  }
+
+  /* 技能 格線（手機單欄）*/
+  .sk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 作品 格線（手機單欄）*/
+  .wk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 聯絡 Email */
+  .ct-email {
+    font-size: clamp(16px, 5vw, 24px);
+    word-break: break-all;
+  }
+
+  .ct-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+}
+
+/* ══════════════════════════════════════════
+   小螢幕手機（≤ 480px）
+   ══════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  .hero-name {
+    font-size: clamp(40px, 12vw, 60px);
+  }
+
+  .drawer-link {
+    font-size: clamp(24px, 7vw, 36px);
+  }
+
+  .sec-title {
+    font-size: clamp(24px, 7vw, 36px);
+  }
+
+}
+
+/* ══════════════════════════════════════════
+   高度不足（橫式手機）
+   ══════════════════════════════════════════ */
+@media (max-height: 500px) and (orientation: landscape) {
+
+  .hero-name {
+    font-size: clamp(32px, 8vh, 56px);
+  }
+
+  .hero-desc {
+    display: none;
+  }
+
+  .hero-cta {
+    margin-top: 16px;
+  }
+
+  .drawer {
+    padding-top: 60px;
+  }
+
+  .drawer-link {
+    font-size: clamp(22px, 5vh, 32px);
+    padding: 8px 0;
+  }
+
+}

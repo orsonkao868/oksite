@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OK小站 — Orson Kao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Serif+TC:wght@200;300;400&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<!-- 風格設計 -->
+<link rel="stylesheet" href="theme.css">
+<!-- 版面配置 -->
+<link rel="stylesheet" href="layout.css">
+<!-- 手機響應 -->
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<!-- 游標（桌機） -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- 進度條 -->
+<div class="progress" id="progress"></div>
+
+<!-- 背景效果 -->
+<div class="noise"></div>
+<div class="glow glow-a"></div>
+<div class="glow glow-b"></div>
+
+<!-- ==========================================
+     LOGO
+     ========================================== -->
+<a class="logo" href="#" onclick="return false">OK</a>
+
+<!-- ==========================================
+     漢堡選單按鈕（右上角三條線）
+     ========================================== -->
+<button class="menu-btn" id="menu-btn" onclick="toggleMenu()" aria-label="選單">
+  <div class="menu-line"></div>
+  <div class="menu-line"></div>
+  <div class="menu-line"></div>
+</button>
+
+<!-- ==========================================
+     全螢幕抽屜（點漢堡展開）
+     內含：導航連結 + 名片
+     ========================================== -->
+<div class="drawer" id="drawer">
+  <nav class="drawer-nav">
+    <a class="drawer-link" href="#" onclick="openInner('about');return false">
+      關於我 <span class="drawer-link-num">01</span>
+    </a>
+    <a class="drawer-link" href="#" onclick="openInner('skills');return false">
+      專業技能 <span class="drawer-link-num">02</span>
+    </a>
+    <a class="drawer-link" href="#" onclick="openInner('works');return false">
+      精選作品 <span class="drawer-link-num">03</span>
+    </a>
+    <a class="drawer-link" href="#" onclick="openInner('contact');return false">
+      聯絡我 <span class="drawer-link-num">04</span>
+    </a>
+  </nav>
+
+  <!-- 名片 -->
+  <div class="drawer-card">
+    <div class="dc-name">Orson Kao</div>
+    <div class="dc-role">Web Dev · Designer</div>
+    <div class="dc-div"></div>
+    <div class="dc-contact">
+      <a href="mailto:orsonkao868@gmail.com">orsonkao868@gmail.com</a>
+      <a href="https://github.com/orsonkao868" target="_blank">github.com/orsonkao868</a>
+      <a href="#">LINE — 即將更新</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     首頁主畫面（固定一屏）
+     左：文字介紹 + CTA
+     右：裝飾資訊盒（手機隱藏）
+     ========================================== -->
+<main>
+  <div class="hero-left">
+    <div class="hero-eyebrow">Web Developer & Designer</div>
+    <h1 class="hero-name">Orson<em>Kao.</em></h1>
+    <div class="hero-brand">OK · Creative Studio</div>
+    <p class="hero-desc">
+      以<strong>想像力</strong>為筆，以<strong>程式</strong>為墨。<br>
+      讓每個數位體驗，都成為客戶心中<strong>最滿意的樣子</strong>。
+    </p>
+    <div class="hero-cta">
+      <a href="#" class="btn-gold" onclick="openInner('works');return false">
+        <span>精選作品</span>
+      </a>
+      <a href="#" class="btn-ghost" onclick="openInner('contact');return false">
+        聯絡我
+      </a>
+    </div>
+  </div>
+
+  <!-- 右側裝飾盒（手機隱藏）-->
+  <div class="hero-right">
+    <div class="deco-box">
+      <div class="deco-big">OK</div>
+      <div class="deco-item">
+        <div class="deco-label">專注領域</div>
+        <div class="deco-val">網站架構<br>程式設計</div>
+      </div>
+      <div class="deco-div"></div>
+      <div class="deco-item">
+        <div class="deco-label">作品數量</div>
+        <div class="deco-val">3+ Projects</div>
+      </div>
+      <div class="deco-div"></div>
+      <div class="deco-item">
+        <div class="deco-label">聯絡方式</div>
+        <div class="deco-val-sm">orsonkao868@gmail.com</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 底部版權 -->
+<div class="footer-sig">© 2026 <span>Orson Kao</span> · All Rights Reserved</div>
+
+<!-- ==========================================
+     內頁（從下方滑入的長形卷軸頁面）
+     左：所有章節內容
+     右：固定目錄（桌機）
+     ========================================== -->
+<div class="inner-page" id="inner-page">
+
+  <!-- 關閉按鈕（左上固定）-->
+  <button class="inner-close" onclick="closeInner()">← 返回</button>
+
+  <!-- 內容區 -->
+  <div class="inner-content" id="inner-content">
+
+    <!-- § 關於我 -->
+    <div class="sec" id="sec-about">
+      <div class="sec-tag">關於我</div>
+      <h2 class="sec-title">想像力是<em>最強大</em><br>的工具</h2>
+      <div class="about-text">
+        <p>我是 <strong>Orson Kao</strong>，一位具備豐富想像力的網站開發者與設計師。我相信每一個網站都是一個故事，每一行程式碼都承載著客戶的夢想。</p>
+        <p>從視覺設計到功能實現，我擅長將抽象的創意轉化為<strong>具體的數位體驗</strong>。無論是精緻的互動設計，還是複雜的系統架構，我都能帶給客戶<strong>超乎預期的成果</strong>。</p>
+        <p>我的目標很簡單：讓每一位客戶，在看到成品的那一刻，都能感受到<strong>那份恰到好處的滿意</strong>。</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-n">3+</div><div class="stat-l">完整作品</div></div>
+        <div class="stat"><div class="stat-n">∞</div><div class="stat-l">創意無限</div></div>
+        <div class="stat"><div class="stat-n">100%</div><div class="stat-l">客戶滿意</div></div>
+        <div class="stat"><div class="stat-n">24/7</div><div class="stat-l">持續學習</div></div>
+      </div>
+    </div>
+
+    <!-- § 專業技能 -->
+    <div class="sec" id="sec-skills">
+      <div class="sec-tag">專業技能</div>
+      <h2 class="sec-title">以技術<em>實現</em><br>每個想像</h2>
+      <div class="sk-grid">
+        <div class="sk">
+          <div class="sk-icon">🏗️</div>
+          <div class="sk-name">網站架構</div>
+          <div class="sk-en">Web Architecture</div>
+          <div class="sk-desc">從零開始規劃完整的網站架構，確保每一個環節穩固且具備擴展性。</div>
+          <div class="sk-tags">
+            <span class="sk-tag">HTML</span><span class="sk-tag">CSS</span>
+            <span class="sk-tag">JavaScript</span><span class="sk-tag">PWA</span>
+          </div>
+        </div>
+        <div class="sk">
+          <div class="sk-icon">⚙️</div>
+          <div class="sk-name">程式設計</div>
+          <div class="sk-en">Programming</div>
+          <div class="sk-desc">將複雜的邏輯以優雅的程式碼實現，打造高效能且易於維護的系統。</div>
+          <div class="sk-tags">
+            <span class="sk-tag">Python</span><span class="sk-tag">Node.js</span>
+            <span class="sk-tag">Express</span><span class="sk-tag">API</span>
+          </div>
+        </div>
+        <div class="sk">
+          <div class="sk-icon">✨</div>
+          <div class="sk-name">視覺設計</div>
+          <div class="sk-en">Visual Design</div>
+          <div class="sk-desc">融合美感與功能性，創造令人印象深刻的視覺體驗與互動設計。</div>
+          <div class="sk-tags">
+            <span class="sk-tag">UI/UX</span><span class="sk-tag">Animation</span>
+            <span class="sk-tag">Canvas</span><span class="sk-tag">SVG</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- § 精選作品 -->
+    <div class="sec" id="sec-works">
+      <div class="sec-tag">精選作品</div>
+      <h2 class="sec-title">每個作品<br>都是一次<em>超越</em></h2>
+      <div class="wk-grid">
+        <a class="wk" href="https://orsonkao868.github.io/danatus/" target="_blank">
+          <div class="wk-n">01</div>
+          <div class="wk-type">Game · Interactive</div>
+          <div class="wk-name">達納特斯遊戲世界</div>
+          <div class="wk-en">Danatus Game Universe</div>
+          <div class="wk-desc">包含多款網頁遊戲的完整遊戲世界，展現豐富的遊戲設計與互動開發能力。</div>
+          <div class="wk-link">查看作品</div>
+        </a>
+        <a class="wk" href="https://orsonkao868.github.io/justmoneybook/" target="_blank">
+          <div class="wk-n">02</div>
+          <div class="wk-type">App · PWA</div>
+          <div class="wk-name">就是記帳</div>
+          <div class="wk-en">JustMoneyBook</div>
+          <div class="wk-desc">懶人專屬的超直觀記帳 App，支援雲端同步、多主題色調，可安裝到手機桌面。</div>
+          <div class="wk-link">查看作品</div>
+        </a>
+        <div class="wk">
+          <div class="wk-n">03</div>
+          <div class="wk-type">App · Travel</div>
+          <div class="wk-name">揪揪去</div>
+          <div class="wk-en">JojoTrip</div>
+          <div class="wk-desc">多人旅遊行程規劃 App，結合 AI 排程、地圖探索、景點投票，開發中。</div>
+          <div class="wk-link" style="color:var(--white-dim)">Coming Soon</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- § 聯絡我 -->
+    <div class="sec" id="sec-contact">
+      <div class="sec-tag">聯絡我</div>
+      <h2 class="sec-title">讓我們一起<br>創造<em>不凡</em></h2>
+      <p class="ct-sub">有任何想法或合作機會？<br>我很樂意聽你說，並一起實現它。</p>
+      <div>
+        <a href="mailto:orsonkao868@gmail.com" class="ct-email">orsonkao868@gmail.com</a>
+      </div>
+      <div class="ct-links">
+        <a href="https://github.com/orsonkao868" target="_blank">GitHub</a>
+        <a href="#">LINE — 即將更新</a>
+      </div>
+    </div>
+
+  </div><!-- /inner-content -->
+
+  <!-- 右側目錄（桌機固定，手機隱藏）-->
+  <nav class="inner-toc" id="inner-toc">
+    <a class="toc-item" href="#" onclick="scrollToSec('about');return false">01 · 關於我</a>
+    <a class="toc-item" href="#" onclick="scrollToSec('skills');return false">02 · 專業技能</a>
+    <a class="toc-item" href="#" onclick="scrollToSec('works');return false">03 · 精選作品</a>
+    <a class="toc-item" href="#" onclick="scrollToSec('contact');return false">04 · 聯絡我</a>
+  </nav>
+
+</div><!-- /inner-page -->
+
+<script src="app.js"></script>
+</body>
+</html>
